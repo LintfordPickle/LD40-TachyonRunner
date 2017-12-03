@@ -1,0 +1,24 @@
+{
+
+	"spriteSheetName" : "Cars",
+	"textureName" : "CarsTexture",
+	"textureFilename" : "res/textures/cars.png",
+	
+	"spriteMap" : {
+	
+		"Car01_i00" : { "x":0,   "y":0,  "w":64, "h":128 },
+		"Car01_i01" : { "x":64,  "y":0,  "w":64, "h":128 },
+		"Car01_i02" : { "x":128,  "y":0,  "w":64, "h":128 },
+		
+		"Car02_i01" : { "x":0, "y":128,  "w":64, "h":128 }
+	
+	},
+	
+	"animationMap" : {
+	
+	    "Car01"  : { loopAnimation = true, frameDuration = 400, animationSprites = [ "Car01_i00", "Car01_i01", "Car01_i02" ] },
+	    "Car02"  : { loopAnimation = true, frameDuration = 400, animationSprites = [ "Car02_i01" ] }
+	
+	}
+
+}
