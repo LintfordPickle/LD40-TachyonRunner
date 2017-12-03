@@ -12,10 +12,12 @@ import net.lintford.library.core.graphics.particles.initialisers.ParticleDestina
 import net.lintford.library.core.graphics.particles.initialisers.ParticleRandomSizeInitialiser;
 import net.lintford.library.core.graphics.particles.initialisers.ParticleSourceRegionInitialiser;
 import net.lintford.library.core.graphics.particles.initialisers.ParticleTurnToFaceInitialiser;
+import net.lintford.library.core.graphics.particles.modifiers.ParticleLifetimeAlphaFadeInOutModifier;
 import net.lintford.library.core.graphics.particles.modifiers.ParticleLifetimeAlphaFadeOutModifier;
 import net.lintford.library.core.graphics.particles.modifiers.ParticlePhysicsModifier;
 import net.lintford.library.renderers.particles.ParticleRenderer;
 import net.lintfords.tachyon.data.GameParticleSystem;
+import net.lintfords.tachyon.data.ParticleWispMovementModifier;
 import net.lintfords.tachyon.renderers.GameParticleRenderer;
 
 public class GameParticlesController extends BaseController {
@@ -57,7 +59,9 @@ public class GameParticlesController extends BaseController {
 		createTrailParticleSystem();
 		createBitsParticleSystem();
 		createSparksParticleSystem();
-
+		createWispParticleSystem();
+		createDamageParticleSystem();
+		
 		// Create a ParticleController for each of the ParticleSystems in the GameParticleSystems.
 		final int NUM_PARTICLE_SYSTEMS = mGameParticleSystems.getNumParticleSystems();
 		for (int i = 0; i < NUM_PARTICLE_SYSTEMS; i++) {
@@ -150,6 +154,35 @@ public class GameParticlesController extends BaseController {
 		lSparks.addModifier(new ParticlePhysicsModifier());
 
 		mGameParticleSystems.addParticleSystem(lSparks);
+
+	}
+
+	private void createWispParticleSystem() {
+		final ParticleSystem WISP_PARTICLE_SYSTEM = new ParticleSystem("WispParticleSystem", 256);
+		WISP_PARTICLE_SYSTEM.initialise("ParticleTexture", "res/textures/particles.png");
+
+		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleSourceRegionInitialiser(96, 0, 16, 16));
+		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleRandomSizeInitialiser(4f, 6f));
+
+		WISP_PARTICLE_SYSTEM.addModifier(new ParticleLifetimeAlphaFadeInOutModifier());
+		WISP_PARTICLE_SYSTEM.addModifier(new ParticleWispMovementModifier());
+		WISP_PARTICLE_SYSTEM.addModifier(new ParticlePhysicsModifier());
+
+		mGameParticleSystems.addParticleSystem(WISP_PARTICLE_SYSTEM);
+
+	}
+	
+	private void createDamageParticleSystem() {
+		final ParticleSystem WISP_PARTICLE_SYSTEM = new ParticleSystem("DamageParticleSystem", 256);
+		WISP_PARTICLE_SYSTEM.initialise("ParticleTexture", "res/textures/particles.png");
+
+		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleSourceRegionInitialiser(0, 32, 32, 32));
+		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleRandomSizeInitialiser(4f, 6f));
+
+		WISP_PARTICLE_SYSTEM.addModifier(new ParticleLifetimeAlphaFadeInOutModifier());
+		WISP_PARTICLE_SYSTEM.addModifier(new ParticlePhysicsModifier());
+
+		mGameParticleSystems.addParticleSystem(WISP_PARTICLE_SYSTEM);
 
 	}
 

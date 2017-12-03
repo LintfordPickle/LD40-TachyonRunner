@@ -198,7 +198,7 @@ public class TrackRenderer extends BaseRenderer {
 				float y = e.y;
 				float a = e.a;
 
-				mTextureBatch.draw(0, 0, 64, 128, x, y, -5.4f, 64, 128, 1f, 1f, 1f, 1f,   a + (float)Math.toRadians(90) , 32, 64, 1f, 1f, mDebugTexture);
+				mTextureBatch.draw(0, 0, 64, 128, x, y, -5.4f, 64, 128, 1f, 1f, 1f, 1f,   a + (float)Math.toRadians(90) , 32, 64, 2f, 2f, mDebugTexture);
 
 			}
 

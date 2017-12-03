@@ -24,6 +24,8 @@ public class GameState extends BaseData {
 	public int totalTime;
 	public int lapTime;
 	
+	public boolean playerAlive;
+	
 	// --------------------------------------
 	// Properties
 	// --------------------------------------
@@ -33,6 +35,7 @@ public class GameState extends BaseData {
 	// --------------------------------------
 
 	public GameState() {
+		playerAlive = true;
 		
 	}
 	

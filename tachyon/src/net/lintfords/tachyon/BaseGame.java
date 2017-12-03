@@ -102,6 +102,15 @@ public class BaseGame extends LintfordCore {
 
 	public static void main(String[] args) {
 		GameInfo lGameInfo = new GameInfo() {
+			@Override
+			public String applicationName() {
+				return "Tachyon Razor";
+			}
+
+			@Override
+			public String windowTitle() {
+				return applicationName();
+			}
 		};
 
 		BaseGame lGameWindow = new BaseGame(lGameInfo);

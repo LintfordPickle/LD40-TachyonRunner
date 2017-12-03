@@ -6,18 +6,26 @@
 	
 	"spriteMap" : {
 	
-		"Car01_i00" : { "x":0,   "y":0,  "w":64, "h":128 },
-		"Car01_i01" : { "x":64,  "y":0,  "w":64, "h":128 },
-		"Car01_i02" : { "x":128,  "y":0,  "w":64, "h":128 },
+		"Car01_i00" : { "x":0,   "y":0,  "w":32, "h":64 },
+		"Car01_i01" : { "x":32,  "y":0,  "w":32, "h":64 },
+		"Car01_i02" : { "x":64,  "y":0,  "w":32, "h":64 },
+		"Car01_i03" : { "x":96,  "y":0,  "w":32, "h":64 },
+		"Car01_i04" : { "x":128,  "y":0,  "w":32, "h":64 },
+		"Car01_i05" : { "x":160,  "y":0,  "w":32, "h":64 },
 		
-		"Car02_i01" : { "x":0, "y":128,  "w":64, "h":128 }
+		"Car02_i00" : { "x":0,   "y":64,  "w":32, "h":64 },
+		"Car02_i01" : { "x":32,  "y":64,  "w":32, "h":64 },
+		"Car02_i02" : { "x":64,  "y":64,  "w":32, "h":64 },
+		"Car02_i03" : { "x":96,  "y":64,  "w":32, "h":64 },
+		"Car02_i04" : { "x":128,  "y":64,  "w":32, "h":64 },
+		"Car02_i05" : { "x":160,  "y":64,  "w":32, "h":64 }
 	
 	},
 	
 	"animationMap" : {
 	
-	    "Car01"  : { loopAnimation = true, frameDuration = 400, animationSprites = [ "Car01_i00", "Car01_i01", "Car01_i02" ] },
-	    "Car02"  : { loopAnimation = true, frameDuration = 400, animationSprites = [ "Car02_i01" ] }
+	    "Car01"  : { loopAnimation = true, frameDuration = 120, animationSprites = [ "Car01_i00", "Car01_i01", "Car01_i02", "Car01_i03", "Car01_i04", "Car01_i05" ] },
+	    "Car02"  : { loopAnimation = true, frameDuration = 1000, animationSprites = [ "Car02_i00", "Car02_i01", "Car02_i02", "Car02_i03", "Car02_i04", "Car02_i05" ] }
 	
 	}
 

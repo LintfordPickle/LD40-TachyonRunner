@@ -15,9 +15,9 @@ public class GameController extends BaseController {
 
 	public static final int COUNT_DOWN_TIME = 1;
 	public static final float COUNT_DOWN_INC_TIME = 1000f;
-	
-	public static final int NUM_LAPS = 2;
-	public static final int NUM_RACERS = 8;
+
+	public static final int NUM_LAPS = 5;
+	public static final int NUM_RACERS = 10;
 
 	// --------------------------------------
 	// Variables
@@ -57,6 +57,10 @@ public class GameController extends BaseController {
 
 	public boolean playerFinished() {
 		return mGameState.currentLap >= mGameState.totalLaps;
+	}
+
+	public boolean playerStillAlive() {
+		return mGameState.playerAlive;
 	}
 
 	public int playerPosition() {
@@ -134,19 +138,24 @@ public class GameController extends BaseController {
 
 		mGameState.totalLaps = NUM_LAPS;
 		mGameState.totalRacers = mCarsController.carManager().cars().size();
-		
+
 	}
 
 	@Override
 	public void update(LintfordCore pCore) {
 		super.update(pCore);
-		
+
 		Car lPlayerCar = mCarsController.carManager().playerCar();
 
 		mGameState.playerHealth = (int) lPlayerCar.mHealth;
 		mGameState.currentLap = MathHelper.clampi(lPlayerCar.currentLap, 0, 4);
 		mGameState.playerPosition = lPlayerCar.currentPosition;
 		mGameState.currentTrackPoint = lPlayerCar.currentTrackPoint;
+
+		if (lPlayerCar.mHealth <= 0) {
+			mGameState.playerAlive = false;
+
+		}
 
 		// Countdown to begin
 		if (!hasRaceStarted()) {
@@ -158,7 +167,7 @@ public class GameController extends BaseController {
 			}
 
 		}
-		
+
 	}
 
 	// --------------------------------------

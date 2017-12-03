@@ -77,7 +77,7 @@ public class GameStateRenderer extends BaseRenderer {
 	@Override
 	public void draw(LintfordCore pCore) {
 
-		if (mGameController.playerFinished()) {
+		if (mGameController.playerFinished() || !mGameController.playerStillAlive()) {
 			GameState lGameState = mGameController.gameState();
 			Rectangle lHUDArea = pCore.HUD().boundingRectangle();
 			
@@ -90,11 +90,6 @@ public class GameStateRenderer extends BaseRenderer {
 			mUIFont.draw("" + lGameState.playerPosition, lHUDArea.left() + posPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 			mUIFont.draw("OF", lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 			mUIFont.draw("" + lGameState.totalRacers, lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5 + ofWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-			mUIFont.end();
-			
-			float lNumberWidth = mUIFontScore.bitmap().getStringWidth("Score: 47522", 1f);
-			mUIFont.begin(pCore.HUD());
-			mUIFont.draw("Score: 47522", lHUDArea.right() - lNumberWidth / 2 - 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 			mUIFont.end();
 			
 			return;

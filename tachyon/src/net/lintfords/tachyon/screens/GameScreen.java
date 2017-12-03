@@ -4,10 +4,12 @@ import org.lwjgl.glfw.GLFW;
 
 import net.lintford.library.controllers.BaseControllerGroups;
 import net.lintford.library.controllers.camera.CameraFollowController;
+import net.lintford.library.controllers.camera.CameraShakeController;
 import net.lintford.library.controllers.camera.CameraZoomController;
 import net.lintford.library.controllers.core.ControllerManager;
 import net.lintford.library.core.LintfordCore;
 import net.lintford.library.core.camera.Camera;
+import net.lintford.library.core.camera.ShakeCamera;
 import net.lintford.library.renderers.BaseRendererGroups;
 import net.lintford.library.renderers.RendererManager;
 import net.lintford.library.screenmanager.ScreenManager;
@@ -56,7 +58,7 @@ public class GameScreen extends BaseGameScreen {
 	// --------------------------------------
 
 	public GameScreen(ScreenManager pScreenManager) {
-		super(pScreenManager);
+		super(pScreenManager, new ShakeCamera(pScreenManager.core().config().display()));
 
 		mGameState = new GameState();
 		mCarManager = new CarManager();
@@ -66,20 +68,20 @@ public class GameScreen extends BaseGameScreen {
 		mWeaponManager = new WeaponManager();
 
 		// Add cars
-		mCarManager.addCar(false);
-		mCarManager.addCar(false);
-		mCarManager.addCar(false);
-		mCarManager.addCar(false);
+		for (int i = 0; i < GameController.NUM_RACERS - 1; i++) {
+			mCarManager.addCar(false);
+
+		}
+
+		// Add the player
 		mCarManager.addCar(true);
-		mCarManager.addCar(false);
-		mCarManager.addCar(false);
 
 		mTrack = TrackGenerator.generateTrack(System.currentTimeMillis(), 128, 512);
 
 		// Controllers
 		ControllerManager lControllerManager = pScreenManager.core().controllerManager();
-		lControllerManager.addController(new BackgroundParallaxController(lControllerManager, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID, mBackgroundParallax));
 		lControllerManager.addController(new GameParticlesController(lControllerManager, mGameParticles, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID));
+		lControllerManager.addController(new BackgroundParallaxController(lControllerManager, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID, mBackgroundParallax));
 		lControllerManager.addController(new TrackController(lControllerManager, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID, mTrack));
 		mGameController = new GameController(lControllerManager, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID, mGameState);
 		lControllerManager.addController(mGameController);
@@ -108,7 +110,14 @@ public class GameScreen extends BaseGameScreen {
 		CameraFollowController lCameraFollowController = new CameraFollowController(lControllerManager, lGameCamera, mCarManager.playerCar(), BaseControllerGroups.CONTROLLER_GAME_GROUP_ID);
 		lControllerManager.addController(lCameraFollowController);
 
+		if (lGameCamera instanceof ShakeCamera) {
+			CameraShakeController lCameraShakeController = new CameraShakeController(lControllerManager, (ShakeCamera) lGameCamera, BaseControllerGroups.CONTROLLER_GAME_GROUP_ID);
+			lControllerManager.addController(lCameraShakeController);
+
+		}
+
 		lControllerManager.initialiseControllers();
+
 	}
 
 	// --------------------------------------
@@ -138,11 +147,18 @@ public class GameScreen extends BaseGameScreen {
 
 		if (!pCoveredByOtherScreen) {
 
-			if(mGameController.playerFinished()) {
+			if (mGameController.playerFinished()) {
 				mScreenManager.addScreen(new FinishedScreen(mScreenManager));
-				
+				return;
+
 			}
-			
+
+			if (!mGameController.playerStillAlive()) {
+				mScreenManager.addScreen(new DeadScreen(mScreenManager));
+				return;
+
+			}
+
 		}
 
 	}

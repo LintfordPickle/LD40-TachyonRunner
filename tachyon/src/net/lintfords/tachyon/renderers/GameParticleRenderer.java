@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.lintford.library.core.LintfordCore;
 import net.lintford.library.core.graphics.ResourceManager;
+import net.lintford.library.core.graphics.sprites.spritebatch.SpriteBatch;
 import net.lintford.library.renderers.BaseRenderer;
 import net.lintford.library.renderers.RendererManager;
 import net.lintford.library.renderers.particles.ParticleRenderer;

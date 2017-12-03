@@ -18,8 +18,8 @@ public class BackgroundParallax {
 
 	public float textureOffsetU;
 	public float textureOffsetV;
-	public float translationSpeedX = .3f;
-	public float translationSpeedY = .3f;
+	public float translationSpeedX = .05f;
+	public float translationSpeedY = .05f;
 	public float zDepth = -10;
 	public float textureScaleX = .2f;
 	public float textureScaleY = .2f;

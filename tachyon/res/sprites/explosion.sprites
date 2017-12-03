@@ -1,0 +1,26 @@
+{
+
+	"spriteSheetName" : "Explosion",
+	"textureName" : "ExplosionTexture",
+	"textureFilename" : "res/textures/explosion.png",
+	
+	"spriteMap" : {
+	
+		"Explosion_f00" : { "x":0,  "y":0,  "w":64, "h":32 },
+		"Explosion_f01" : { "x":64, "y":0,  "w":64, "h":32 },
+		"Explosion_f02" : { "x":0,  "y":32, "w":64, "h":32 },
+		"Explosion_f03" : { "x":64, "y":32, "w":64, "h":23 },
+		"Explosion_f04" : { "x":0,  "y":64, "w":64, "h":32 },
+		"Explosion_f05" : { "x":64, "y":64, "w":64, "h":32 },
+		"Explosion_f06" : { "x":0,  "y":96, "w":64, "h":32 },
+		"Explosion_f07" : { "x":64, "y":96, "w":64, "h":32 }
+	
+	},
+	
+	"animationMap" : {
+	
+	    "Explosion"  : { loopAnimation = false, frameDuration = 70, animationSprites = [ "Explosion_f00", "Explosion_f01", "Explosion_f02", "Explosion_f03", "Explosion_f04", "Explosion_f05", "Explosion_f06", "Explosion_f07" ] }
+	
+	}
+
+}

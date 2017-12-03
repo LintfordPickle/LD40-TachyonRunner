@@ -74,7 +74,7 @@ public class Car extends CircleEntity {
 
 		width = 64;
 		height = 128;
-		radius = 32;
+		radius = 48;
 
 		mHealth = mMaxHealth;
 
