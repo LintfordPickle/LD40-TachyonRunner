@@ -52,15 +52,20 @@ public class GameScreen extends BaseGameScreen {
 	private BackgroundParallax mBackgroundParallax;
 
 	private GameController mGameController;
+	private int mNumberShips;
+	private int mNumberLaps;
 
 	// --------------------------------------
 	// Constructor
 	// --------------------------------------
 
-	public GameScreen(ScreenManager pScreenManager) {
+	public GameScreen(ScreenManager pScreenManager, int pNumLaps, int pNumRacers) {
 		super(pScreenManager, new ShakeCamera(pScreenManager.core().config().display()));
 
-		mGameState = new GameState();
+		mNumberLaps = pNumLaps;
+		mNumberShips = pNumRacers;
+
+		mGameState = new GameState(mNumberLaps, mNumberShips);
 		mCarManager = new CarManager();
 		mBackgroundParallax = new BackgroundParallax();
 		mGameParticles = new GameParticleSystem();
@@ -68,7 +73,7 @@ public class GameScreen extends BaseGameScreen {
 		mWeaponManager = new WeaponManager();
 
 		// Add cars
-		for (int i = 0; i < GameController.NUM_RACERS - 1; i++) {
+		for (int i = 0; i < mNumberShips - 1; i++) {
 			mCarManager.addCar(false);
 
 		}
@@ -76,7 +81,7 @@ public class GameScreen extends BaseGameScreen {
 		// Add the player
 		mCarManager.addCar(true);
 
-		mTrack = TrackGenerator.generateTrack(System.currentTimeMillis(), 128, 512);
+		mTrack = TrackGenerator.generateTrack(System.currentTimeMillis(), 128, 680);
 
 		// Controllers
 		ControllerManager lControllerManager = pScreenManager.core().controllerManager();

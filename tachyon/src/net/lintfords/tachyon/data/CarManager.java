@@ -3,7 +3,6 @@ package net.lintfords.tachyon.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.lintford.library.core.maths.RandomNumbers;
 import net.lintford.library.data.BaseData;
 
 public class CarManager extends BaseData {
@@ -60,7 +59,6 @@ public class CarManager extends BaseData {
 		} else {
 			lNewCar.carSpriteName = "Car02";
 			lNewCar.mPlayerControlled = false;
-			lNewCar.carSpeedMax = 1200 * RandomNumbers.random(0.90f, 1.5f);
 
 		}
 

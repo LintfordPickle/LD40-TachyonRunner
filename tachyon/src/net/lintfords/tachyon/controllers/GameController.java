@@ -13,11 +13,8 @@ public class GameController extends BaseController {
 
 	public static final String CONTROLLER_NAME = "GameController";
 
-	public static final int COUNT_DOWN_TIME = 1;
-	public static final float COUNT_DOWN_INC_TIME = 1000f;
-
-	public static final int NUM_LAPS = 5;
-	public static final int NUM_RACERS = 10;
+	public static final int COUNT_DOWN_TIME = 4;
+	public static final float COUNT_DOWN_INC_TIME = 900f;
 
 	// --------------------------------------
 	// Variables
@@ -119,7 +116,7 @@ public class GameController extends BaseController {
 			Car lCar = mCarsController.carManager().cars().get(i);
 
 			lCar.currentPosition = i;
-			lCar.currentLap = 0;
+			lCar.currentLap = 1;
 			lCar.currentDist = 0;
 
 			lCar.heading = lStartAngle;
@@ -135,9 +132,6 @@ public class GameController extends BaseController {
 
 		// inform the game state
 		mGameState.playerHealthMax = 100;
-
-		mGameState.totalLaps = NUM_LAPS;
-		mGameState.totalRacers = mCarsController.carManager().cars().size();
 
 	}
 

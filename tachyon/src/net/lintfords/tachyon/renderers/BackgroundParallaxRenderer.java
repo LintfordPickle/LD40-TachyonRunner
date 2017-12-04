@@ -100,6 +100,8 @@ public class BackgroundParallaxRenderer extends BaseRenderer {
 		if (mIsLoaded)
 			return;
 
+		super.loadGLContent(pResourceManager);
+
 		mShader.loadGLContent(pResourceManager);
 		mShader.screenDimensions(pResourceManager.masterConfig().display().windowSize().x, pResourceManager.masterConfig().display().windowSize().y);
 
@@ -164,8 +166,6 @@ public class BackgroundParallaxRenderer extends BaseRenderer {
 	public void unloadGLContent() {
 		if (!mIsLoaded)
 			return;
-
-		System.out.println("SkyRenderer unloading GL Content");
 
 		if (mVaoId > -1) {
 			GL15.glDeleteBuffers(mVaoId);

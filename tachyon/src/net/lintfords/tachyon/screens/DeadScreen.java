@@ -40,7 +40,7 @@ public class DeadScreen extends MenuScreen {
 		lResumeButton.registerClickListener(this, BUTTON_ID_RESTART);
 		lExitButton.registerClickListener(this, BUTTON_ID_EXIT);
 
-		lButtonLayout.menuEntries().add(lResumeButton);
+		// lButtonLayout.menuEntries().add(lResumeButton);
 		lButtonLayout.menuEntries().add(lExitButton);
 
 		layouts().add(lButtonLayout);

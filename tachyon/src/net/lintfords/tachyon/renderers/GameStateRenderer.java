@@ -16,7 +16,7 @@ public class GameStateRenderer extends BaseRenderer {
 
 	public static final String RENDERER_NAME = "GameStateRenderer";
 
-	public static final String UI_FONT_PATHNAME = "res/fonts/retroville.ttf";
+	public static final String UI_FONT_PATHNAME = "res/fonts/nasalization.ttf";
 
 	// --------------------------------------
 	// Variables
@@ -85,18 +85,18 @@ public class GameStateRenderer extends BaseRenderer {
 			float actPosWidth = mUIFont.bitmap().getStringWidth(" " + lGameState.playerPosition);
 			float ofWidth = mUIFont.bitmap().getStringWidth("OF ");
 
-			mUIFont.begin(pCore.HUD());
-			mUIFont.draw("POS", lHUDArea.left() + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-			mUIFont.draw("" + lGameState.playerPosition, lHUDArea.left() + posPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-			mUIFont.draw("OF", lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-			mUIFont.draw("" + lGameState.totalRacers, lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5 + ofWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-			mUIFont.end();
-			
+//			mUIFont.begin(pCore.HUD());
+//			mUIFont.draw("POS", lHUDArea.left() + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+//			mUIFont.draw("" + lGameState.playerPosition, lHUDArea.left() + posPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+//			mUIFont.draw("OF", lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+//			mUIFont.draw("" + lGameState.totalRacers, lHUDArea.left() + posPosWidth + 5 + actPosWidth + 5 + ofWidth + 5, lHUDArea.bottom() - 5 - 50, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+//			mUIFont.end();
+//			
 			return;
 
 		}
 
-		renderPositionInfo(pCore);
+		// renderPositionInfo(pCore);
 		renderLapInfo(pCore);
 		renderHealthInfo(pCore);
 
@@ -107,7 +107,7 @@ public class GameStateRenderer extends BaseRenderer {
 			float lNumberWidth = mUIFontScore.bitmap().getStringWidth("" + mGameController.countDownTime(), lScale);
 			float lNumberHeight = mUIFontScore.bitmap().getStringHeight("" + mGameController.countDownTime(), lScale);
 			mUIFontScore.begin(pCore.HUD());
-			mUIFontScore.draw("READY!", 0 - lTextWidth / 2, -100, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+			mUIFontScore.draw("READY!", 0 - lTextWidth / 2, -100, -2f, 1f, 1f, 1f, 1f, 1f, -1);
 			mUIFontScore.draw("" + mGameController.countDownTime(), 0 - lNumberWidth / 2, 0 - lNumberHeight / 2, -0.1f, 1f, 1f, 1f, 1f, lScale, -1);
 			mUIFontScore.end();
 
@@ -143,15 +143,11 @@ public class GameStateRenderer extends BaseRenderer {
 		float ofWidth = mUIFont.bitmap().getStringWidth("OF");
 		float numLapWidth = mUIFont.bitmap().getStringWidth(lGameState.totalLaps + "");
 
-		float actLapWidth1 = mUIFont.bitmap().getStringWidth("" + lGameState.currentTrackPoint);
-
 		mUIFont.begin(pCore.HUD());
 		mUIFont.draw("LAP", lHUDArea.right() - 5 - laptextWidth, lHUDArea.top() + 5, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 		mUIFont.draw("" + lGameState.currentLap, lHUDArea.right() - 5 - actLapWidth - 5 - ofWidth - 5 - numLapWidth - 5, lHUDArea.top() + 35, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-		mUIFont.draw("OF", lHUDArea.right() - 5 - actLapWidth - 5 - ofWidth - 5, lHUDArea.top() + 35, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
+		mUIFont.draw("OF", lHUDArea.right() - 5 - ofWidth - 5 - numLapWidth - 5, lHUDArea.top() + 35, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 		mUIFont.draw("" + lGameState.totalLaps, lHUDArea.right() - 5 - numLapWidth - 5, lHUDArea.top() + 35, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
-
-		mUIFont.draw("" + lGameState.currentTrackPoint, lHUDArea.right() - 5 - actLapWidth1, lHUDArea.top() + 65, -0.1f, 1f, 1f, 1f, 1f, 1f, -1);
 
 		mUIFont.end();
 

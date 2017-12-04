@@ -6,6 +6,8 @@ import net.lintford.library.controllers.BaseController;
 import net.lintford.library.controllers.camera.CameraShakeController;
 import net.lintford.library.controllers.core.ControllerManager;
 import net.lintford.library.core.LintfordCore;
+import net.lintford.library.core.audio.AudioManager;
+import net.lintford.library.core.graphics.particles.Particle;
 import net.lintford.library.core.maths.MathHelper;
 import net.lintford.library.core.maths.RandomNumbers;
 import net.lintford.library.core.maths.Vector2f;
@@ -16,6 +18,8 @@ import net.lintfords.tachyon.renderers.CarsRenderer;
 public class CarsController extends BaseController {
 
 	public static final String CONTROLLER_NAME = "CarsController";
+
+	public static final float SPARK_TIMER_WAIT = 15; // ms
 
 	// --------------------------------------
 	// Variables
@@ -29,6 +33,8 @@ public class CarsController extends BaseController {
 
 	// SHould be a better way than logic access UI
 	private CarsRenderer mCarRenderer;
+
+	AudioManager lAM;
 
 	// --------------------------------------
 	// Properties
@@ -65,10 +71,8 @@ public class CarsController extends BaseController {
 		mParticlesController = (GameParticlesController) mControllerManager.getControllerByNameRequired(GameParticlesController.CONTROLLER_NAME);
 		mGameController = (GameController) mControllerManager.getControllerByNameRequired(GameController.CONTROLLER_NAME);
 		mCameraShakeController = (CameraShakeController) mControllerManager.getControllerByName(CameraShakeController.CONTROLLER_NAME);
-		
-		
+
 		mCarRenderer = (CarsRenderer) mControllerManager.core().rendererManager().getRenderer(CarsRenderer.RENDERER_NAME);
-		
 
 	}
 
@@ -81,7 +85,7 @@ public class CarsController extends BaseController {
 		if (lPlayerCar != null) {
 
 			boolean isSteering = false;
-			if (pCore.input().keyDown(GLFW.GLFW_KEY_W)) {
+			if (pCore.input().keyDown(GLFW.GLFW_KEY_W) && !lPlayerCar.handBrakeOn) {
 				lPlayerCar.speed += Car.CAR_ACCELERATION;
 
 			}
@@ -91,12 +95,12 @@ public class CarsController extends BaseController {
 			}
 
 			if (pCore.input().keyDown(GLFW.GLFW_KEY_A)) {
-				lPlayerCar.steerAngle += -Car.CAR_TURN_ANGLE_INC;
+				lPlayerCar.steerAngle += -lPlayerCar.carTurnAngleInc;
 				isSteering = true;
 			}
 
 			if (pCore.input().keyDown(GLFW.GLFW_KEY_D)) {
-				lPlayerCar.steerAngle += Car.CAR_TURN_ANGLE_INC;
+				lPlayerCar.steerAngle += lPlayerCar.carTurnAngleInc;
 				isSteering = true;
 			}
 
@@ -104,8 +108,15 @@ public class CarsController extends BaseController {
 				lPlayerCar.steerAngle *= 0.94f;
 
 			if (pCore.input().keyDown(GLFW.GLFW_KEY_SPACE)) {
+				if (lPlayerCar.speed > 0)
+					lPlayerCar.speed -= Car.CAR_ACCELERATION * 0.7f;
+				if (lPlayerCar.speed < 0)
+					lPlayerCar.speed += Car.CAR_ACCELERATION * 0.7f;
+
 				lPlayerCar.handBrakeOn = true;
 
+			} else {
+				lPlayerCar.handBrakeOn = false;
 			}
 
 		}
@@ -145,7 +156,7 @@ public class CarsController extends BaseController {
 			Car lCar = carManager().cars().get(i);
 
 			if (!lCar.mPlayerControlled || mGameController.playerFinished()) {
-				// updateAI(pCore, lCar);
+				updateAI(pCore, lCar);
 
 			} else {
 
@@ -183,9 +194,8 @@ public class CarsController extends BaseController {
 				updateEntityCollisions(lCar, lCarOther);
 
 			}
-			
-			// Check health 
-			
+
+			// Check health
 
 		}
 
@@ -197,30 +207,42 @@ public class CarsController extends BaseController {
 
 	public void updateAI(LintfordCore pCore, Car pCar) {
 		final int NUM_TRACK_POINTS = mTrackController.track().getNumTrackPoints();
-		final int pNextTrackPointID = (pCar.currentTrackPoint + 1) % NUM_TRACK_POINTS;
+		int lIDFOund = mTrackController.getClosestTrackPointID(pCar.x, pCar.y);
+		final int pNextTrackPointID = (lIDFOund + 2) % NUM_TRACK_POINTS;
+		final int pNextTrackPointIDPlusOne = (lIDFOund + 3) % NUM_TRACK_POINTS;
 
 		Vector2f pNextControlPoint = mTrackController.track().getTrackPoint(pNextTrackPointID);
+		Vector2f pNextControlPointPlusOne = mTrackController.track().getTrackPoint(pNextTrackPointIDPlusOne);
+
+		Vector2f trackDirection = new Vector2f();
+		trackDirection.x = pNextControlPointPlusOne.x - pNextControlPoint.x;
+		trackDirection.y = pNextControlPointPlusOne.y - pNextControlPoint.y;
+		trackDirection.nor();
+
+		float tempX = trackDirection.x;
+		trackDirection.x = -trackDirection.y;
+		trackDirection.y = tempX;
+
+		float offX = trackDirection.x * RandomNumbers.random(-mTrackController.track().segmentWidth / 2f, mTrackController.track().segmentWidth / 2f);
+		float offY = trackDirection.y * RandomNumbers.random(-mTrackController.track().segmentWidth / 2f, mTrackController.track().segmentWidth / 2f);
 
 		// The amount of throttle and turn speed to be applied will depend on
 		// the Fresnel term (faster if facing the target)
-		final float lHeadingVecX = pNextControlPoint.x - pCar.x;
-		final float lHeadingVecY = pNextControlPoint.y - pCar.y;
+		final float lHeadingVecX = (pNextControlPoint.x + offX) - pCar.x;
+		final float lHeadingVecY = (pNextControlPoint.y + offY) - pCar.y;
 
 		float dist = (float) Math.sqrt((lHeadingVecX * lHeadingVecX) + (lHeadingVecY * lHeadingVecY));
 
 		// Check if the vehicle has reached the destination
-		if (dist > 512) {
+		if (dist > 64) {
 
-			float lHeadingAngle = turnToFace(lHeadingVecX, lHeadingVecY, pCar.heading, Car.CAR_TURN_ANGLE_INC);
+			float lHeadingAngle = turnToFace(lHeadingVecX, lHeadingVecY, pCar.heading, pCar.carTurnAngleInc * 3f);
 
 			pCar.steerAngle += lHeadingAngle;
 			pCar.isSteering = true;
 
 			pCar.speed += Car.CAR_ACCELERATION;
 
-		} else {
-			// Arrived at checkpoint
-			pCar.currentTrackPoint = pNextTrackPointID;
 		}
 
 	}
@@ -258,9 +280,22 @@ public class CarsController extends BaseController {
 
 	public void updateCar(LintfordCore pCore, Car pCar) {
 
+		pCar.sparkTimer += pCore.time().elapseGameTimeMilli();
+		pCar.bangTimer += pCore.time().elapseGameTimeMilli();
+		pCar.clangTimer += pCore.time().elapseGameTimeMilli();
+		pCar.smokeTimer += pCore.time().elapseGameTimeMilli();
+
+		pCar.dx += (float) Math.cos(pCar.heading + pCar.steerAngle) * (pCar.speed / pCar.carSpeedMax) * .1f;
+		pCar.dy += (float) Math.sin(pCar.heading + pCar.steerAngle) * (pCar.speed / pCar.carSpeedMax) * .1f;
+
+		pCar.dr += pCar.steerAngle / 10f * (pCar.speed / pCar.carSpeedMax);
+
+		pCar.dx = MathHelper.clamp(pCar.dx, -2f, 2f);
+		pCar.dy = MathHelper.clamp(pCar.dy, -2f, 2f);
+
 		pCar.wheelBase = 32;
 		pCar.speed = MathHelper.clamp(pCar.speed, -pCar.carSpeedMax * 0.5f, pCar.carSpeedMax);
-		pCar.steerAngle = MathHelper.clamp(pCar.steerAngle, -Car.CAR_TURN_ANGLE_MAX, Car.CAR_TURN_ANGLE_MAX);
+		pCar.steerAngle = MathHelper.clamp(pCar.steerAngle, -pCar.carTurnAngleMax, pCar.carTurnAngleMax);
 
 		// Project the wheel out along the heading direction, from the center of the vehicle
 		pCar.mFrontWheels.x = pCar.x + pCar.wheelBase / 2 * (float) Math.cos(pCar.heading);
@@ -288,12 +323,73 @@ public class CarsController extends BaseController {
 		pCar.steerAngle *= 0.98f;
 
 		ParticleController pc = mParticlesController.getParticleControllerByName("Trails");
-		if (pc != null && Math.abs(pCar.speed) > 10) {
+		if (pc != null && Math.abs(pCar.speed) > 5) {
 			float lVelX = (float) -Math.cos(pCar.heading);
 			float lVelY = (float) -Math.sin(pCar.heading);
-			pc.particleSystem().spawnParticle(pCar.x + 16 + lVelX * 75f, pCar.y + 16f + lVelY * 75f, lVelX * pCar.speed * 0.0005f, lVelY * pCar.speed * 0.0005f, 200f, 0, 0, 32, 32, 16);
+			Particle p = pc.particleSystem().spawnParticle(pCar.x + 16 + lVelX * 75f, pCar.y +16 + lVelY * 75f, lVelX * pCar.speed * 0.0005f, lVelY * pCar.speed * 0.0005f, 400f, 0, 0, 32, 32, 16);
+			if(p != null) {
+				p.r = pCar.r;
+				p.g = pCar.g;
+				p.b = pCar.b;
+				p.radius = 32;
+				
+			}
 
 		}
+
+		pCar.x += pCar.dx * pCore.time().elapseGameTimeMilli();
+		pCar.y += pCar.dy * pCore.time().elapseGameTimeMilli();
+
+		if (pCar.handBrakeOn) {
+			pCar.heading += pCar.dr;
+		}
+
+		if (pCar.handBrakeOn)
+			pCar.dr *= 0.91f;
+		else
+			pCar.dr *= 0.7f;
+
+		pCar.dx *= 0.96f;
+		pCar.dy *= 0.96f;
+		
+		if(pCar.mHealth < pCar.mMaxHealth / 2) {
+			if(pCar.mPlayerControlled && pCar.mHealth <=  0) {
+				if(pCar.smokeTimer > 10) {
+					pCar.smokeTimer = 0;
+					ParticleController smokePartSys = mParticlesController.getParticleControllerByName("SmokeParticleSystem");
+					if (pc != null && pCar.sparkTimer > SPARK_TIMER_WAIT) {
+						pCar.sparkTimer = 0;
+						
+						float lVelX = (float) -Math.cos(pCar.heading);
+						float lVelY = (float) -Math.sin(pCar.heading);
+						
+						smokePartSys.particleSystem().spawnParticle(pCar.x + 75, pCar.y , lVelX * 0.5f, lVelY * 0.5f, 300f);
+						
+					}
+					
+				}
+			}
+			
+			if(pCar.smokeTimer > 100) {
+				pCar.smokeTimer = 0;
+				ParticleController smokePartSys = mParticlesController.getParticleControllerByName("SmokeParticleSystem");
+				if (pc != null && pCar.sparkTimer > SPARK_TIMER_WAIT) {
+					pCar.sparkTimer = 0;
+					
+					float lVelX = (float) -Math.cos(pCar.heading);
+					float lVelY = (float) -Math.sin(pCar.heading);
+					
+					smokePartSys.particleSystem().spawnParticle(pCar.x + 75, pCar.y , lVelX * 0.5f, lVelY * 0.5f, 300f);
+					
+				}
+				
+			}
+		
+			
+			
+		}
+		
+		
 
 	}
 
@@ -337,7 +433,7 @@ public class CarsController extends BaseController {
 		pCar.innerWallFront.x = lStartPosition.x - tempSideDirection.x * mTrackController.track().segmentWidth / lOffset;
 		pCar.innerWallFront.y = lStartPosition.y - tempSideDirection.y * mTrackController.track().segmentWidth / lOffset;
 
-		if (pCar.mPlayerControlled) {
+		if (pCar.mPlayerControlled || !pCar.mPlayerControlled) {
 			// Check for collisions against both walls
 			float distO = getCircleLineIntersectionPoint(pCar.outerWallRear, pCar.outerWallFront, new Vector2f(pCar.x, pCar.y), pCar.radius);
 			if (distO > 0) {
@@ -369,7 +465,18 @@ public class CarsController extends BaseController {
 				// glide the car with the wall
 				float aa = (float) Math.atan2(reflectVelocityNormal.y, reflectVelocityNormal.x);
 				pCar.heading = aa;
-				pCar.steerAngle = -Car.CAR_TURN_ANGLE_MAX * 0.5f;
+				pCar.steerAngle = -pCar.carTurnAngleMax * 0.1f;
+				pCar.dr = 0;
+				pCar.dx = 0;
+				pCar.dy = 0;
+				pCar.mHealth -= 0.7f * (pCar.speed / pCar.carSpeedMax) * 2f;
+
+				mCarRenderer.playExplosion(pCar.x, pCar.y);
+
+				if (pCar.mPlayerControlled) {
+					if (mCameraShakeController != null)
+						mCameraShakeController.shake(300f, 20f);
+				}
 
 				ParticleController pc = mParticlesController.getParticleControllerByName("Sparks");
 				if (pc != null) {
@@ -387,15 +494,6 @@ public class CarsController extends BaseController {
 
 					}
 
-				}
-				
-				pCar.mHealth -= 0.5f * (pCar.speed / pCar.carSpeedMax) * 2f;
-				
-				mCarRenderer.playExplosion(pCar.x, pCar.y);
-				
-				if(pCar.mPlayerControlled) {
-					if(mCameraShakeController != null)
-						mCameraShakeController.shake(300f, 20f);
 				}
 				
 			}
@@ -431,7 +529,19 @@ public class CarsController extends BaseController {
 				// glide the car with the wall
 				float aa = (float) Math.atan2(reflectVelocityNormal.y, reflectVelocityNormal.x);
 				pCar.heading = aa;
-				pCar.steerAngle = Car.CAR_TURN_ANGLE_MAX * 0.5f;
+				pCar.steerAngle = pCar.carTurnAngleMax * 0.1f;
+				pCar.dr = 0;
+				pCar.dx = 0;
+				pCar.dy = 0;
+
+				mCarRenderer.playExplosion(pCar.x, pCar.y);
+
+				pCar.mHealth -= 0.7f * (pCar.speed / pCar.carSpeedMax) * 2f;
+
+				if (pCar.mPlayerControlled) {
+					if (mCameraShakeController != null)
+						mCameraShakeController.shake(300f, 20f);
+				}
 
 				ParticleController pc = mParticlesController.getParticleControllerByName("Sparks");
 				if (pc != null) {
@@ -449,15 +559,6 @@ public class CarsController extends BaseController {
 
 					}
 
-				}
-				
-				mCarRenderer.playExplosion(pCar.x, pCar.y);
-				
-				pCar.mHealth -= 0.5f * (pCar.speed / pCar.carSpeedMax) * 2f;
-				
-				if(pCar.mPlayerControlled) {
-					if(mCameraShakeController != null)
-						mCameraShakeController.shake(300f, 20f);
 				}
 
 			}
@@ -481,21 +582,19 @@ public class CarsController extends BaseController {
 				float lRepelPower = (pCar1.radius + pCar0.radius - dist) / (pCar1.radius + pCar0.radius);
 
 				ParticleController pc = mParticlesController.getParticleControllerByName("Sparks");
-				if (pc != null) {
-					for (int j = 0; j < 16; j++) {
+				if (pc != null && pCar0.sparkTimer > SPARK_TIMER_WAIT) {
+					pCar0.sparkTimer = 0;
 
-						float dirX = pCar0.x - pCar1.x;
-						float dirY = pCar0.y - pCar1.y;
+					float dirX = pCar0.x - pCar1.x;
+					float dirY = pCar0.y - pCar1.y;
 
-						float a = (float) Math.atan2(dirY, dirX);
-						a += (float) Math.toRadians(RandomNumbers.random(0f, 60f) - 60f);
+					float a = (float) Math.atan2(dirY, dirX);
+					a += (float) Math.toRadians(RandomNumbers.random(0f, 60f) - 60f);
 
-						float lVelX = (float) -Math.cos(a);
-						float lVelY = (float) -Math.sin(a);
+					float lVelX = (float) -Math.cos(a);
+					float lVelY = (float) -Math.sin(a);
 
-						pc.particleSystem().spawnParticle(pCar0.x + 16, pCar0.y + 16, lVelX * 0.5f, lVelY * 0.5f, 350f, 32, 0, 32, 32, 16);
-
-					}
+					pc.particleSystem().spawnParticle(pCar0.x + 16, pCar0.y + 16, lVelX * 0.5f, lVelY * 0.5f, 700f, 32, 0, 32, 32, 16);
 
 				}
 
@@ -509,25 +608,25 @@ public class CarsController extends BaseController {
 				pCar1.speed *= RandomNumbers.random(0.93f, 0.97f);
 
 				if (!pCar0.mPlayerControlled) {
-					pCar0.steerAngle = -Car.CAR_TURN_ANGLE_INC;
-					pCar0.heading -= Car.CAR_TURN_ANGLE_INC;
+					pCar0.steerAngle = -pCar0.carTurnAngleInc;
+					pCar0.heading -= pCar0.carTurnAngleInc;
 
-				}else {
-					if(mCameraShakeController != null)
+				} else {
+					if (mCameraShakeController != null)
 						mCameraShakeController.shake(200f, 10f);
 				}
 
 				if (!pCar1.mPlayerControlled) {
-					pCar1.steerAngle = Car.CAR_TURN_ANGLE_INC;
-					pCar1.heading += Car.CAR_TURN_ANGLE_INC;
+					pCar1.steerAngle = pCar1.carTurnAngleInc;
+					pCar1.heading += pCar1.carTurnAngleInc;
 
-				}else {
-					if(mCameraShakeController != null)
+				} else {
+					if (mCameraShakeController != null)
 						mCameraShakeController.shake(300f, 20f);
 				}
 
-				pCar0.mHealth -= 0.5f * (pCar0.speed / pCar0.carSpeedMax) * 2f;
-				pCar1.mHealth -= 0.5f * (pCar1.speed / pCar1.carSpeedMax) * 2f;
+				pCar0.mHealth -= 0.4f * (pCar0.speed / pCar0.carSpeedMax) * 1.6f;
+				pCar1.mHealth -= 0.4f * (pCar1.speed / pCar1.carSpeedMax) * 1.6f;
 
 			}
 
@@ -550,23 +649,6 @@ public class CarsController extends BaseController {
 
 		return pBy2 * pBy2 - q;
 
-		// float disc = pBy2 * pBy2 - q;
-		// if (disc < 0) {
-		// return null;
-		// }
-		//
-		// // if disc == 0 ... dealt with later
-		// float tmpSqrt = (float) Math.sqrt(disc);
-		// float abScalingFactor1 = -pBy2 + tmpSqrt;
-		// float abScalingFactor2 = -pBy2 - tmpSqrt;
-		//
-		// Vector2f p1 = new Vector2f(pointA.x - baX * abScalingFactor1, pointA.y - baY * abScalingFactor1);
-		// if (disc == 0) { // abScalingFactor1 == abScalingFactor2
-		// return Collections.singletonList(p1);
-		// }
-		// Vector2f p2 = new Vector2f(pointA.x - baX * abScalingFactor2, pointA.y - baY * abScalingFactor2);
-		//
-		// return Arrays.asList(p1, p2);
 	}
 
 }

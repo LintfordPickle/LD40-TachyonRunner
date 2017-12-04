@@ -1,9 +1,12 @@
 package net.lintfords.tachyon;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import net.lintford.library.GameInfo;
 import net.lintford.library.core.LintfordCore;
+import net.lintford.library.core.audio.AudioData;
+import net.lintford.library.core.audio.AudioSource;
 import net.lintford.library.core.graphics.textures.TextureManager;
 import net.lintford.library.screenmanager.ScreenManager;
 import net.lintfords.tachyon.screens.MainMenuScreen;
@@ -12,6 +15,8 @@ import net.lintfords.tachyon.screens.MenuBackgroundScreen;
 public class BaseGame extends LintfordCore {
 
 	ScreenManager mScreenManager;
+	AudioSource mBackgroundMusic;
+	private float mInputTimer;
 
 	// --------------------------------------
 	// Constructor
@@ -26,8 +31,6 @@ public class BaseGame extends LintfordCore {
 	protected void onInitialiseApp() {
 		super.onInitialiseApp();
 
-		TextureManager.textureManager().loadTexture(ScreenManager.SCREENMANAGER_TEXTURE_NAME, "res/textures/screenmanager.png");
-
 		mScreenManager = new ScreenManager(this);
 		mScreenManager.initialise("res/fonts/nasalization.ttf");
 
@@ -40,6 +43,7 @@ public class BaseGame extends LintfordCore {
 	protected void onInitialiseGL() {
 		super.onInitialiseGL();
 
+		
 		// Enable depth testing
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -57,6 +61,15 @@ public class BaseGame extends LintfordCore {
 	protected void onLoadGLContent() {
 		super.onLoadGLContent();
 
+		TextureManager.textureManager().loadTexture(ScreenManager.SCREENMANAGER_TEXTURE_NAME, "res/textures/screenmanager.png");
+
+		AudioData lMusic = mResourceManager.audioManager().loadOggSound("Music00", "res/music/Ouroboros.ogg");
+		if(lMusic != null) {
+			mBackgroundMusic = mResourceManager.audioManager().play(lMusic);
+			mBackgroundMusic.setLooping(true);
+			
+		}
+		
 		mScreenManager.loadGLContent(mResourceManager);
 
 	}
@@ -74,6 +87,19 @@ public class BaseGame extends LintfordCore {
 		super.onHandleInput();
 
 		mScreenManager.handleInput(this);
+		
+		if(input().keyDown(GLFW.GLFW_KEY_M)) {
+			if(mBackgroundMusic != null) {
+				if(mInputTimer > 200) {
+					if(mBackgroundMusic.isPlaying()) {
+						mBackgroundMusic.stop();
+					}else {
+						mBackgroundMusic.continuePlaying();
+					}
+					mInputTimer = 0;
+				}
+			}
+		}
 
 	}
 
@@ -81,6 +107,8 @@ public class BaseGame extends LintfordCore {
 	protected void onUpdate() {
 		super.onUpdate();
 
+		mInputTimer += time().elapseGameTimeMilli();
+		
 		mScreenManager.update(this);
 
 	}

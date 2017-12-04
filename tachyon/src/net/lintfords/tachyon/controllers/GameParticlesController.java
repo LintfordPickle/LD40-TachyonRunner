@@ -15,6 +15,7 @@ import net.lintford.library.core.graphics.particles.initialisers.ParticleTurnToF
 import net.lintford.library.core.graphics.particles.modifiers.ParticleLifetimeAlphaFadeInOutModifier;
 import net.lintford.library.core.graphics.particles.modifiers.ParticleLifetimeAlphaFadeOutModifier;
 import net.lintford.library.core.graphics.particles.modifiers.ParticlePhysicsModifier;
+import net.lintford.library.core.graphics.particles.modifiers.ParticleRotationModifier;
 import net.lintford.library.renderers.particles.ParticleRenderer;
 import net.lintfords.tachyon.data.GameParticleSystem;
 import net.lintfords.tachyon.data.ParticleWispMovementModifier;
@@ -129,6 +130,8 @@ public class GameParticlesController extends BaseController {
 		lTrailParticles.initialise("ParticleTexture", "res/textures/particles.png");
 
 		lTrailParticles.addInitialiser(new ParticleTurnToFaceInitialiser());
+		lTrailParticles.addInitialiser(new ParticleRandomSizeInitialiser(10f, 15f));
+		
 		lTrailParticles.addModifier(new ParticleLifetimeAlphaFadeOutModifier());
 		lTrailParticles.addModifier(new ParticlePhysicsModifier());
 
@@ -173,16 +176,17 @@ public class GameParticlesController extends BaseController {
 	}
 	
 	private void createDamageParticleSystem() {
-		final ParticleSystem WISP_PARTICLE_SYSTEM = new ParticleSystem("DamageParticleSystem", 256);
-		WISP_PARTICLE_SYSTEM.initialise("ParticleTexture", "res/textures/particles.png");
+		final ParticleSystem lSmokeParticles = new ParticleSystem("SmokeParticleSystem", 128);
+		lSmokeParticles.initialise("ParticleTexture", "res/textures/particles.png");
 
-		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleSourceRegionInitialiser(0, 32, 32, 32));
-		WISP_PARTICLE_SYSTEM.addInitialiser(new ParticleRandomSizeInitialiser(4f, 6f));
+		lSmokeParticles.addInitialiser(new ParticleSourceRegionInitialiser(0, 32, 64, 64));
+		lSmokeParticles.addInitialiser(new ParticleRandomSizeInitialiser(32f, 128f));
 
-		WISP_PARTICLE_SYSTEM.addModifier(new ParticleLifetimeAlphaFadeInOutModifier());
-		WISP_PARTICLE_SYSTEM.addModifier(new ParticlePhysicsModifier());
+		lSmokeParticles.addModifier(new ParticleLifetimeAlphaFadeInOutModifier());
+		lSmokeParticles.addModifier(new ParticleRotationModifier());
+		lSmokeParticles.addModifier(new ParticlePhysicsModifier());
 
-		mGameParticleSystems.addParticleSystem(WISP_PARTICLE_SYSTEM);
+		mGameParticleSystems.addParticleSystem(lSmokeParticles);
 
 	}
 

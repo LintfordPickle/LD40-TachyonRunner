@@ -19,14 +19,6 @@ public class PauseScreen extends MenuScreen {
 	public static final int BUTTON_ID_EXIT = 2;
 
 	// --------------------------------------
-	// Variables
-	// --------------------------------------
-
-	// --------------------------------------
-	// Properties
-	// --------------------------------------
-
-	// --------------------------------------
 	// Constructor
 	// --------------------------------------
 
@@ -44,7 +36,6 @@ public class PauseScreen extends MenuScreen {
 		lExitButton.registerClickListener(this, BUTTON_ID_EXIT);
 
 		lButtonLayout.menuEntries().add(lResumeButton);
-		lButtonLayout.menuEntries().add(lRestartButton);
 		lButtonLayout.menuEntries().add(lExitButton);
 
 		layouts().add(lButtonLayout);
@@ -68,14 +59,11 @@ public class PauseScreen extends MenuScreen {
 		case BUTTON_ID_RESUME:
 			exitScreen();
 			return;
-			
-		case BUTTON_ID_RESTART:
-			LoadingScreen.load(mScreenManager, true, new GameScreen(mScreenManager));
-			return;
 
 		case BUTTON_ID_EXIT:
 			LoadingScreen.load(mScreenManager, false, new MenuBackgroundScreen(mScreenManager), new MainMenuScreen(mScreenManager));
 			return;
+			
 		}
 
 	}

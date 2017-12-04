@@ -13,32 +13,30 @@ public class GameState extends BaseData {
 	public int playerScore;
 	public int playerHealth;
 	public int playerHealthMax;
-	
-	public int totalRacers;
+
+	public final int totalRacers;
 	public int playerPosition;
-	
-	public int totalLaps;
+
+	public final int totalLaps;
 	public int currentTrackPoint;
 	public int currentLap;
-	
+
 	public int totalTime;
 	public int lapTime;
-	
+
 	public boolean playerAlive;
-	
-	// --------------------------------------
-	// Properties
-	// --------------------------------------
 
 	// --------------------------------------
 	// Constructor
 	// --------------------------------------
 
-	public GameState() {
+	public GameState(int pNumLaps, int pNumShips) {
 		playerAlive = true;
-		
+		totalLaps = pNumLaps;
+		totalRacers = pNumShips;
+
 	}
-	
+
 	// --------------------------------------
 	// Core-Methods
 	// --------------------------------------

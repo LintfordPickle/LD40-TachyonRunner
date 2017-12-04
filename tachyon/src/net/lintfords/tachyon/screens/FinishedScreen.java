@@ -18,14 +18,6 @@ public class FinishedScreen extends MenuScreen {
 	public static final int BUTTON_ID_EXIT = 1;
 
 	// --------------------------------------
-	// Variables
-	// --------------------------------------
-
-	// --------------------------------------
-	// Properties
-	// --------------------------------------
-
-	// --------------------------------------
 	// Constructor
 	// --------------------------------------
 
@@ -40,7 +32,7 @@ public class FinishedScreen extends MenuScreen {
 		lResumeButton.registerClickListener(this, BUTTON_ID_RESTART);
 		lExitButton.registerClickListener(this, BUTTON_ID_EXIT);
 
-		lButtonLayout.menuEntries().add(lResumeButton);
+		// lButtonLayout.menuEntries().add(lResumeButton);
 		lButtonLayout.menuEntries().add(lExitButton);
 
 		layouts().add(lButtonLayout);
